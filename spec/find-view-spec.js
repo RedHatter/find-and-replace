@@ -1579,6 +1579,7 @@ describe("FindView", () => {
             afterEach(() => {
               expect(atom.beep).toHaveBeenCalled();
               expect(findView.refs.descriptionLabel).toHaveClass("text-error");
+              expect(findView.element).toHaveClass("function-error");
               // it didn't replace or change the selection
               expect(findView.refs.resultCounter.textContent).toEqual("2 of 5");
               expect(editor.lineTextForBufferRow(2)).toBe("    if (cats.length <= 1) return items;");
