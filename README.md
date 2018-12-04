@@ -1,5 +1,6 @@
-# Find and Replace package
-[![OS X Build Status](https://travis-ci.org/atom/find-and-replace.svg?branch=master)](https://travis-ci.org/atom/find-and-replace) [![Windows Build Status](https://ci.appveyor.com/api/projects/status/6w4baiiq5mw4nxky/branch/master?svg=true)](https://ci.appveyor.com/project/Atom/find-and-replace/branch/master) [![Dependency Status](https://david-dm.org/atom/find-and-replace.svg)](https://david-dm.org/atom/find-and-replace)
+# Functional Find and Replace package
+
+This package is a fork of atoms builtin find and replace adding the ability to use a function to provide the replacement text. This works just like passing a function as the second parameter to [String.prototype.replace()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace). See the initial [pull request](https://github.com/atom/find-and-replace/pull/944).
 
 Find and replace in the current buffer or across the entire project in Atom.
 
