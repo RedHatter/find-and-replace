@@ -4,7 +4,7 @@ SelectNext = require './select-next'
 {History, HistoryCycler} = require './history'
 FindOptions = require './find-options'
 BufferSearch = require './buffer-search'
-FileIcons = require './file-icons'
+getIconServices = require './get-icon-services'
 FindView = require './find-view'
 ProjectFindView = require './project-find-view'
 ResultsModel = require './project/results-model'
@@ -107,7 +107,7 @@ module.exports =
         panelToToggle.show()
         postToggleAction?()
 
-    atom.commands.add '.editor:not(.mini)',
+    @subscriptions.add atom.commands.add '.editor:not(.mini)',
       'find-and-replace:select-next': (event) ->
         selectNextObjectForEditorElement(this).findAndSelectNext()
       'find-and-replace:select-all': (event) ->
@@ -117,23 +117,34 @@ module.exports =
       'find-and-replace:select-skip': (event) ->
         selectNextObjectForEditorElement(this).skipCurrentSelection()
 
-  consumeFileIcons: (service) ->
-    FileIcons.setService service
+  consumeElementIcons: (service) ->
+    getIconServices().setElementIcons service
     new Disposable ->
-      FileIcons.resetService()
+      getIconServices().resetElementIcons()
 
-  requestAutocompletions: ->
-    disposable = @autocompleteWatchEditor?(@findView.findEditor, ['default'])
-    if disposable?
-      @autocompleteSubscriptions.add(disposable)
+  consumeFileIcons: (service) ->
+    getIconServices().setFileIcons service
+    new Disposable ->
+      getIconServices().resetFileIcons()
+
+  toggleAutocompletions: (value) ->
+    if not @findView?
+      return
+    if value
+      @autocompleteSubscriptions = new CompositeDisposable
+      disposable = @autocompleteWatchEditor?(@findView.findEditor, ['default'])
+      if disposable?
+        @autocompleteSubscriptions.add(disposable)
+    else
+      @autocompleteSubscriptions?.dispose()
 
   consumeAutocompleteWatchEditor: (watchEditor) ->
-    @autocompleteSubscriptions = new CompositeDisposable
     @autocompleteWatchEditor = watchEditor
-    if @findView?
-      requestAutocompletions()
+    atom.config.observe(
+      'find-and-replace.autocompleteSearches',
+      (value) => @toggleAutocompletions(value))
     new Disposable =>
-      @autocompleteSubscriptions.dispose()
+      @autocompleteSubscriptions?.dispose()
       @autocompleteWatchEditor = null
 
   provideService: ->
@@ -175,7 +186,7 @@ module.exports =
     # See https://github.com/atom/find-and-replace/issues/63
     ResultsPaneView.model = @resultsModel
 
-    @requestAutocompletions()
+    @toggleAutocompletions atom.config.get('find-and-replace.autocompleteSearches')
 
   deactivate: ->
     @findPanel?.destroy()
